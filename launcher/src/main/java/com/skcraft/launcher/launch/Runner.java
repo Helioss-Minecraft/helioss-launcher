@@ -189,7 +189,6 @@ public class Runner implements Callable<Process>, ProgressObservable {
             if (!library.matches(environment)) {
                 continue;
             }
-
             File path = new File(launcher.getLibrariesDir(), library.getPath(environment));
 
             if (path.exists()) {
@@ -198,6 +197,12 @@ public class Runner implements Callable<Process>, ProgressObservable {
                     ZipExtract zipExtract = new ZipExtract(Files.asByteSource(path), extractDir);
                     zipExtract.setExclude(extract.getExclude());
                     zipExtract.run();
+
+                    // TODO: Should be better fix. I don't know how does library manifest work
+                    // java-objc-bridge should be both extracted and added to classpath
+                    if(library.getArtifact().equalsIgnoreCase("java-objc-bridge")) {
+                        builder.classPath(path);
+                    }
                 } else {
                     builder.classPath(path);
                 }
