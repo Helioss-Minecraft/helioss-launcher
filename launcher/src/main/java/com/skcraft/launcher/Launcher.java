@@ -27,6 +27,7 @@ import com.skcraft.launcher.model.modpack.LauncherJSON;
 import com.skcraft.launcher.model.modpack.ModJSON;
 import com.skcraft.launcher.model.modpack.ModpackVersion;
 import com.sun.management.OperatingSystemMXBean;
+import jnr.ffi.Platform;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
@@ -445,8 +446,26 @@ public final class Launcher {
         if (dir != null) {
             log.info("Using given base directory " + dir.getAbsolutePath());
         } else {
-            String userprofile = System.getenv("USERPROFILE");
-            dir = new File(userprofile + "\\Documents\\helioss_launcher");
+            final String userHome = System.getProperty("user.home");
+            final String launcherDirName = "helioss_launcher";
+
+            final Platform.OS os = Platform.getNativePlatform().getOS();
+
+            String subDir;
+            switch (os) {
+                case LINUX:
+                case DARWIN:
+                    subDir = "." + launcherDirName;
+                    break;
+                default:
+                    subDir = "Documents" + File.pathSeparator + launcherDirName;
+                    break;
+            }
+
+            dir = new File(userHome + File.separator + subDir);
+
+//            String userprofile = System.getenv("USERPROFILE");
+//            dir = new File(userprofile + "\\Documents\\helioss_launcher");
             log.info("Using directory " + dir.getAbsolutePath());
         }
 
